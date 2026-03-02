@@ -1,0 +1,169 @@
+import { useState, useEffect } from 'react';
+import {
+  Box, Typography, TextField, InputAdornment, IconButton, Fab, Tooltip,
+  CircularProgress, Button, Chip,
+} from '@mui/material';
+import {
+  Search, Refresh, SmartToy, Logout, FilterList,
+} from '@mui/icons-material';
+import { initClient } from './services/helmApi';
+import { useProjects, useDashboardStats } from './hooks/useHelmData';
+import AuthGate from './components/AuthGate';
+import StatsCards from './components/StatsCards';
+import StatusChart from './components/StatusChart';
+import ProjectCard from './components/ProjectCard';
+import TaskDetailDrawer from './components/TaskDetailDrawer';
+import AskAgent from './components/AskAgent';
+
+export default function App() {
+  const [authed, setAuthed] = useState(false);
+  const [search, setSearch] = useState('');
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [askOpen, setAskOpen] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
+
+  const { projects, loading, error, load } = useProjects();
+  const stats = useDashboardStats(projects);
+
+  useEffect(() => {
+    const token = localStorage.getItem('helm_token');
+    if (token) {
+      initClient(token);
+      setAuthed(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (authed) load();
+  }, [authed, load]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('helm_token');
+    setAuthed(false);
+  };
+
+  if (!authed) return <AuthGate onAuth={() => setAuthed(true)} />;
+
+  const filtered = projects.filter((p) => {
+    if (search) {
+      const q = search.toLowerCase();
+      const match = p.projectName.toLowerCase().includes(q) ||
+        p.techLeadEmail.toLowerCase().includes(q) ||
+        p.productLeadEmail.toLowerCase().includes(q) ||
+        p.tasks.some((t) => t.title.toLowerCase().includes(q) || t.repo.toLowerCase().includes(q));
+      if (!match) return false;
+    }
+    if (statusFilter) {
+      return p.tasks.some((t) => t.status === statusFilter);
+    }
+    return true;
+  });
+
+  return (
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', color: 'text.primary' }}>
+      <Box sx={{ px: 3, py: 2, borderBottom: '1px solid rgba(148,163,184,0.1)', display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Typography variant="h5" sx={{ fontWeight: 700, background: 'linear-gradient(135deg, #60a5fa, #a78bfa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+          AI Helm
+        </Typography>
+        <Box sx={{ flex: 1 }} />
+        <TextField
+          size="small"
+          placeholder="Search projects, tasks, repos..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          slotProps={{
+            input: {
+              startAdornment: <InputAdornment position="start"><Search sx={{ fontSize: 18, color: 'text.secondary' }} /></InputAdornment>,
+            },
+          }}
+          sx={{ width: 300 }}
+        />
+        <Tooltip title="Refresh">
+          <IconButton onClick={() => load()} disabled={loading}>
+            {loading ? <CircularProgress size={20} /> : <Refresh />}
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Logout">
+          <IconButton onClick={handleLogout}><Logout sx={{ fontSize: 20 }} /></IconButton>
+        </Tooltip>
+      </Box>
+
+      <Box sx={{ maxWidth: 1200, mx: 'auto', p: 3 }}>
+        {error && (
+          <Box sx={{ mb: 2, p: 2, bgcolor: 'rgba(248,113,113,0.1)', borderRadius: 2, border: '1px solid rgba(248,113,113,0.3)' }}>
+            <Typography color="error" variant="body2">{error}</Typography>
+            <Button size="small" onClick={() => load()} sx={{ mt: 1 }}>Retry</Button>
+          </Box>
+        )}
+
+        <Box sx={{ mb: 3 }}>
+          <StatsCards {...stats} />
+        </Box>
+
+        <Box sx={{ display: 'flex', gap: 3, mb: 3 }}>
+          <Box sx={{ flex: 1, bgcolor: 'background.paper', borderRadius: 2, p: 2, border: '1px solid rgba(148,163,184,0.1)' }}>
+            <Typography variant="subtitle2" sx={{ mb: 1.5 }}>Task Status Breakdown</Typography>
+            <StatusChart counts={stats.statusBreakdown} total={stats.totalTasks} />
+          </Box>
+          <Box sx={{ width: 280, bgcolor: 'background.paper', borderRadius: 2, p: 2, border: '1px solid rgba(148,163,184,0.1)' }}>
+            <Typography variant="subtitle2" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <FilterList sx={{ fontSize: 16 }} /> Filter by Status
+            </Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+              {['IN_PROGRESS', 'READY', 'PENDING', 'INITIALIZED', 'COMPLETED', 'DENIED'].map((s) => (
+                <Chip
+                  key={s}
+                  label={s.replace('_', ' ')}
+                  size="small"
+                  onClick={() => setStatusFilter(statusFilter === s ? null : s)}
+                  variant={statusFilter === s ? 'filled' : 'outlined'}
+                  sx={{
+                    justifyContent: 'flex-start',
+                    ...(statusFilter === s && { bgcolor: 'primary.main', color: 'white' }),
+                  }}
+                />
+              ))}
+              {statusFilter && (
+                <Button size="small" onClick={() => setStatusFilter(null)} sx={{ mt: 0.5 }}>
+                  Clear filter
+                </Button>
+              )}
+            </Box>
+          </Box>
+        </Box>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+          <Typography variant="h6">Projects</Typography>
+          <Chip label={filtered.length} size="small" />
+        </Box>
+
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+          {loading && projects.length === 0 ? (
+            <Box sx={{ textAlign: 'center', py: 6 }}><CircularProgress /></Box>
+          ) : filtered.length === 0 ? (
+            <Typography color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
+              {search || statusFilter ? 'No projects match your filters' : 'No projects found'}
+            </Typography>
+          ) : (
+            filtered.map((p) => (
+              <ProjectCard key={p.id} project={p} onTaskClick={setSelectedTaskId} />
+            ))
+          )}
+        </Box>
+      </Box>
+
+      <TaskDetailDrawer taskId={selectedTaskId} onClose={() => setSelectedTaskId(null)} />
+
+      <Tooltip title="Ask Helm Agent">
+        <Fab
+          color="primary"
+          onClick={() => setAskOpen(!askOpen)}
+          sx={{ position: 'fixed', bottom: askOpen ? 'calc(60vh + 24px)' : 16, right: 16, transition: 'bottom 0.3s' }}
+        >
+          <SmartToy />
+        </Fab>
+      </Tooltip>
+      <AskAgent projects={projects} open={askOpen} onClose={() => setAskOpen(false)} />
+    </Box>
+  );
+}
