@@ -3,15 +3,15 @@ import { createTheme } from '@mui/material/styles';
 // Silver Fern Brand Colors
 const FERN = '#69936C';         // Primary brand green
 const FERN_DARK = '#4A7A4D';    // Darker fern for hover states
-const RICH_SOIL = '#3F4948';    // Dark charcoal
+const RICH_SOIL = '#2A2C2E';    // Dark charcoal (neutral)
 const SPRING = '#A1DBA6';       // CTA / accent green
 const STIRLING = '#B3B3B3';     // Medium gray
 const LIGHT_SILVER = '#F2F2F2'; // Off-white backgrounds
 
-// Dark mode palette derived from Rich Soil
-const BG_DEFAULT = '#2C3635';   // Slightly lighter than Rich Soil
-const BG_PAPER = '#364140';     // Card/paper surfaces
-const BG_ELEVATED = '#3E4C4B';  // Elevated surfaces
+// Dark mode palette — neutral grays
+const BG_DEFAULT = '#1B1D1F';   // Main background
+const BG_PAPER = '#252729';     // Card/paper surfaces
+const BG_ELEVATED = '#2E3032';  // Elevated surfaces
 
 export const theme = createTheme({
   palette: {
