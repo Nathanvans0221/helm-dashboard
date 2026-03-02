@@ -4,7 +4,8 @@ import type { HelmProject, HelmTask, HelmTaskSummary, TaskStatusCounts } from '.
 let client: GraphQLClient | null = null;
 
 export function initClient(token: string) {
-  client = new GraphQLClient('/api/graphql', {
+  const base = window.location.origin;
+  client = new GraphQLClient(`${base}/api/graphql`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 }
