@@ -92,8 +92,8 @@ export default function TaskDetailDrawer({ taskId, onClose }: TaskDetailDrawerPr
               <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 0.5 }}>Details</Typography>
               <Box
                 sx={{
-                  p: 1.5, bgcolor: 'rgba(200,200,200,0.05)', borderRadius: 1,
-                  border: '1px solid rgba(200,200,200,0.08)',
+                  p: 1.5, bgcolor: 'action.hover', borderRadius: 1,
+                  border: 1, borderColor: 'divider',
                   maxHeight: 300, overflow: 'auto', fontFamily: 'monospace', fontSize: '0.8rem',
                   whiteSpace: 'pre-wrap', wordBreak: 'break-word', color: 'text.secondary',
                 }}

@@ -157,8 +157,8 @@ export default function AuthGate({ onAuth }: AuthGateProps) {
             </Link>
 
             <Box sx={{
-              my: 2, py: 2, px: 3, bgcolor: 'rgba(200,200,200,0.06)',
-              borderRadius: 2, border: '1px solid rgba(200,200,200,0.12)',
+              my: 2, py: 2, px: 3, bgcolor: 'action.hover',
+              borderRadius: 2, border: 1, borderColor: 'divider',
             }}>
               <Typography variant="caption" color="text.secondary">Your code</Typography>
               <Typography variant="h4" sx={{ fontFamily: 'monospace', fontWeight: 700, letterSpacing: 4, color: BRAND.fern }}>

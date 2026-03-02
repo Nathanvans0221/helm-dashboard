@@ -49,7 +49,7 @@ export default function ProjectCard({ project: p, onTaskClick }: ProjectCardProp
         onClick={() => setExpanded(!expanded)}
         sx={{
           p: 2, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 2,
-          '&:hover': { bgcolor: 'rgba(200,200,200,0.04)' },
+          '&:hover': { bgcolor: 'action.hover' },
         }}
       >
         <Box sx={{ flex: 1 }}>

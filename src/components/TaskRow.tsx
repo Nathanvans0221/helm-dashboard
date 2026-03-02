@@ -25,7 +25,7 @@ export default function TaskRow({ task, onCopyPrompt, onClick }: TaskRowProps) {
         display: 'flex', alignItems: 'center', gap: 1.5, py: 1, px: 1.5,
         borderRadius: 1, cursor: 'pointer',
         borderLeft: `3px solid ${STATUS_COLORS[task.status] ?? BRAND.stirling}`,
-        '&:hover': { bgcolor: 'rgba(200,200,200,0.05)' },
+        '&:hover': { bgcolor: 'action.hover' },
       }}
     >
       <Box onClick={onClick} sx={{ flex: 1, minWidth: 0 }}>
