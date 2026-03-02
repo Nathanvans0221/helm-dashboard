@@ -2,11 +2,12 @@ import { useState, useEffect, useRef } from 'react';
 import {
   Box, Button, Typography, Paper, CircularProgress, Link,
 } from '@mui/material';
-import { RocketLaunch, OpenInNew } from '@mui/icons-material';
+import { OpenInNew } from '@mui/icons-material';
 import {
   startDeviceAuth, pollDeviceToken, initClient, storeAuth,
   getStoredAuth, refreshAccessToken,
 } from '../services/helmApi';
+import { BRAND } from '../theme/theme';
 
 interface AuthGateProps {
   onAuth: () => void;
@@ -106,23 +107,35 @@ export default function AuthGate({ onAuth }: AuthGateProps) {
   return (
     <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'background.default' }}>
       <Paper sx={{ p: 4, maxWidth: 480, width: '100%', textAlign: 'center' }}>
-        <RocketLaunch sx={{ fontSize: 48, color: 'primary.main', mb: 2 }} />
-        <Typography variant="h5" sx={{ mb: 0.5, fontWeight: 700, background: 'linear-gradient(135deg, #60a5fa, #a78bfa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-          AI Helm Dashboard
+        <Box component="img" src="/icon.svg" sx={{ height: 56, width: 56, mb: 2 }} alt="Silver Fern" />
+        <Typography variant="h5" sx={{ mb: 0.5, fontWeight: 700, color: BRAND.lightSilver }}>
+          AI Helm
+        </Typography>
+        <Typography variant="caption" sx={{
+          display: 'block', mb: 3, color: BRAND.stirling,
+          fontSize: '0.7rem', letterSpacing: '0.1em', textTransform: 'uppercase',
+        }}>
+          Silver Fern
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
           Sign in with your Silver Fern account
         </Typography>
 
         {step === 'idle' && (
-          <Button variant="contained" fullWidth size="large" onClick={handleLogin} sx={{ py: 1.5 }}>
+          <Button
+            variant="contained"
+            fullWidth
+            size="large"
+            onClick={handleLogin}
+            sx={{ py: 1.5, bgcolor: BRAND.fern, '&:hover': { bgcolor: BRAND.fernDark } }}
+          >
             Login with Silver Fern
           </Button>
         )}
 
         {step === 'loading' && (
           <Box sx={{ py: 2 }}>
-            <CircularProgress size={32} />
+            <CircularProgress size={32} sx={{ color: BRAND.fern }} />
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
               Connecting...
             </Typography>
@@ -138,23 +151,23 @@ export default function AuthGate({ onAuth }: AuthGateProps) {
               href={verifyUrl}
               target="_blank"
               rel="noopener"
-              sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, mb: 2, fontSize: '0.95rem' }}
+              sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, mb: 2, fontSize: '0.95rem', color: BRAND.spring }}
             >
               Open Login Page <OpenInNew sx={{ fontSize: 16 }} />
             </Link>
 
             <Box sx={{
-              my: 2, py: 2, px: 3, bgcolor: 'rgba(96,165,250,0.08)',
-              borderRadius: 2, border: '1px solid rgba(96,165,250,0.2)',
+              my: 2, py: 2, px: 3, bgcolor: `${BRAND.fern}12`,
+              borderRadius: 2, border: `1px solid ${BRAND.fern}33`,
             }}>
               <Typography variant="caption" color="text.secondary">Your code</Typography>
-              <Typography variant="h4" sx={{ fontFamily: 'monospace', fontWeight: 700, letterSpacing: 4, color: 'primary.main' }}>
+              <Typography variant="h4" sx={{ fontFamily: 'monospace', fontWeight: 700, letterSpacing: 4, color: BRAND.fern }}>
                 {userCode}
               </Typography>
             </Box>
 
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mt: 2 }}>
-              <CircularProgress size={16} />
+              <CircularProgress size={16} sx={{ color: BRAND.fern }} />
               <Typography variant="body2" color="text.secondary">
                 Waiting for you to sign in...
               </Typography>
@@ -167,7 +180,7 @@ export default function AuthGate({ onAuth }: AuthGateProps) {
                 if (pollingRef.current) clearInterval(pollingRef.current);
                 setStep('idle');
               }}
-              sx={{ mt: 2 }}
+              sx={{ mt: 2, color: BRAND.stirling }}
             >
               Cancel
             </Button>
@@ -177,7 +190,12 @@ export default function AuthGate({ onAuth }: AuthGateProps) {
         {step === 'error' && (
           <Box>
             <Typography color="error" variant="body2" sx={{ mb: 2 }}>{error}</Typography>
-            <Button variant="contained" fullWidth onClick={handleLogin}>
+            <Button
+              variant="contained"
+              fullWidth
+              onClick={handleLogin}
+              sx={{ bgcolor: BRAND.fern, '&:hover': { bgcolor: BRAND.fernDark } }}
+            >
               Try Again
             </Button>
           </Box>

@@ -5,7 +5,7 @@ import {
 import {
   ExpandMore, ExpandLess, OpenInNew, Person, Engineering,
 } from '@mui/icons-material';
-import { STATUS_COLORS } from '../theme/theme';
+import { STATUS_COLORS, BRAND } from '../theme/theme';
 import type { ProjectWithTasks, HelmTaskSummary } from '../types/helm';
 import TaskRow from './TaskRow';
 
@@ -30,7 +30,7 @@ function activeStatusLabel(p: ProjectWithTasks): { label: string; color: string 
   if (pending > 0) return { label: `${pending} pending`, color: STATUS_COLORS.PENDING };
   const pct = completionPct(p);
   if (pct === 100) return { label: 'Complete', color: STATUS_COLORS.COMPLETED };
-  return { label: 'No activity', color: '#64748b' };
+  return { label: 'No activity', color: BRAND.stirling };
 }
 
 export default function ProjectCard({ project: p, onTaskClick }: ProjectCardProps) {
@@ -49,7 +49,7 @@ export default function ProjectCard({ project: p, onTaskClick }: ProjectCardProp
         onClick={() => setExpanded(!expanded)}
         sx={{
           p: 2, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 2,
-          '&:hover': { bgcolor: 'rgba(148,163,184,0.05)' },
+          '&:hover': { bgcolor: `${BRAND.fern}08` },
         }}
       >
         <Box sx={{ flex: 1 }}>
@@ -83,15 +83,15 @@ export default function ProjectCard({ project: p, onTaskClick }: ProjectCardProp
             variant="determinate"
             value={pct}
             sx={{
-              height: 6, borderRadius: 3, bgcolor: 'rgba(148,163,184,0.15)',
+              height: 6, borderRadius: 3,
               '& .MuiLinearProgress-bar': {
-                bgcolor: pct === 100 ? '#34d399' : pct > 0 ? '#fbbf24' : '#94a3b8',
+                bgcolor: pct === 100 ? STATUS_COLORS.COMPLETED : pct > 0 ? STATUS_COLORS.PENDING : BRAND.stirling,
                 borderRadius: 3,
               },
             }}
           />
         </Box>
-        <IconButton size="small">
+        <IconButton size="small" sx={{ color: BRAND.stirling }}>
           {expanded ? <ExpandLess /> : <ExpandMore />}
         </IconButton>
       </Box>
@@ -109,7 +109,7 @@ export default function ProjectCard({ project: p, onTaskClick }: ProjectCardProp
                 href={p.clickUpTaskUrl}
                 target="_blank"
                 clickable
-                sx={{ mr: 1 }}
+                sx={{ mr: 1, borderColor: `${BRAND.fern}44`, color: BRAND.spring }}
               />
             </Box>
           )}

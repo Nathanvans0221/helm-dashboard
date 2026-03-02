@@ -3,7 +3,7 @@ import {
   Drawer, Box, Typography, Chip, IconButton, Divider, Button, CircularProgress,
 } from '@mui/material';
 import { Close, ContentCopy, OpenInNew } from '@mui/icons-material';
-import { STATUS_COLORS, PRIORITY_COLORS } from '../theme/theme';
+import { STATUS_COLORS, PRIORITY_COLORS, BRAND } from '../theme/theme';
 import { useTaskDetail } from '../hooks/useHelmData';
 
 interface TaskDetailDrawerProps {
@@ -34,28 +34,28 @@ export default function TaskDetailDrawer({ taskId, onClose }: TaskDetailDrawerPr
   return (
     <Drawer anchor="right" open={!!taskId} onClose={onClose} PaperProps={{ sx: { width: { xs: '100%', md: 520 }, bgcolor: 'background.default' } }}>
       {loading && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}><CircularProgress /></Box>
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}><CircularProgress sx={{ color: BRAND.fern }} /></Box>
       )}
       {task && !loading && (
         <Box sx={{ p: 3, height: '100%', overflow: 'auto' }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
             <Typography variant="h6" sx={{ flex: 1, pr: 1 }}>{task.title}</Typography>
-            <IconButton onClick={onClose}><Close /></IconButton>
+            <IconButton onClick={onClose} sx={{ color: BRAND.stirling }}><Close /></IconButton>
           </Box>
 
           <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
             <Chip
               label={task.status.replace('_', ' ')}
-              sx={{ bgcolor: (STATUS_COLORS[task.status] ?? '#64748b') + '22', color: STATUS_COLORS[task.status] }}
+              sx={{ bgcolor: (STATUS_COLORS[task.status] ?? BRAND.stirling) + '22', color: STATUS_COLORS[task.status] }}
             />
             {task.priority && task.priority !== 'NORMAL' && (
               <Chip
                 label={task.priority}
-                sx={{ bgcolor: (PRIORITY_COLORS[task.priority] ?? '#64748b') + '22', color: PRIORITY_COLORS[task.priority] }}
+                sx={{ bgcolor: (PRIORITY_COLORS[task.priority] ?? BRAND.stirling) + '22', color: PRIORITY_COLORS[task.priority] }}
               />
             )}
-            <Chip label={task.repo} variant="outlined" size="small" />
-            {task.assignee && <Chip label={`@${task.assignee.split('@')[0]}`} variant="outlined" size="small" />}
+            <Chip label={task.repo} variant="outlined" size="small" sx={{ borderColor: `${BRAND.fern}44` }} />
+            {task.assignee && <Chip label={`@${task.assignee.split('@')[0]}`} variant="outlined" size="small" sx={{ borderColor: `${BRAND.fern}44` }} />}
           </Box>
 
           <Button
@@ -63,7 +63,7 @@ export default function TaskDetailDrawer({ taskId, onClose }: TaskDetailDrawerPr
             startIcon={<ContentCopy />}
             onClick={copyBranchPrompt}
             fullWidth
-            sx={{ mb: 2 }}
+            sx={{ mb: 2, bgcolor: BRAND.fern, '&:hover': { bgcolor: BRAND.fernDark } }}
           >
             Copy Claude Prompt
           </Button>
@@ -75,7 +75,7 @@ export default function TaskDetailDrawer({ taskId, onClose }: TaskDetailDrawerPr
               href={task.pullRequestUrl}
               target="_blank"
               fullWidth
-              sx={{ mb: 2 }}
+              sx={{ mb: 2, borderColor: `${BRAND.fern}66`, color: BRAND.spring, '&:hover': { borderColor: BRAND.fern } }}
             >
               Open Pull Request
             </Button>
@@ -92,7 +92,8 @@ export default function TaskDetailDrawer({ taskId, onClose }: TaskDetailDrawerPr
               <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 0.5 }}>Details</Typography>
               <Box
                 sx={{
-                  p: 1.5, bgcolor: 'rgba(148,163,184,0.08)', borderRadius: 1,
+                  p: 1.5, bgcolor: `${BRAND.fern}0A`, borderRadius: 1,
+                  border: `1px solid ${BRAND.fern}15`,
                   maxHeight: 300, overflow: 'auto', fontFamily: 'monospace', fontSize: '0.8rem',
                   whiteSpace: 'pre-wrap', wordBreak: 'break-word', color: 'text.secondary',
                 }}

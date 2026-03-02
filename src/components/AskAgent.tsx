@@ -3,6 +3,7 @@ import {
   Box, TextField, Typography, Paper, CircularProgress, IconButton,
 } from '@mui/material';
 import { Send, SmartToy, Close } from '@mui/icons-material';
+import { BRAND } from '../theme/theme';
 import type { ProjectWithTasks } from '../types/helm';
 
 interface AskAgentProps {
@@ -38,7 +39,7 @@ function MarkdownText({ text }: { text: string }) {
                 key={j}
                 component="code"
                 sx={{
-                  bgcolor: 'rgba(148,163,184,0.15)',
+                  bgcolor: `${BRAND.fern}18`,
                   px: 0.5,
                   borderRadius: 0.5,
                   fontSize: '0.78rem',
@@ -234,13 +235,13 @@ export default function AskAgent({ projects, open, onClose }: AskAgentProps) {
       sx={{
         position: 'fixed', bottom: 16, right: 16, width: 420, maxHeight: '60vh',
         display: 'flex', flexDirection: 'column', zIndex: 1300,
-        border: '1px solid rgba(96,165,250,0.3)', overflow: 'hidden',
+        border: `1px solid ${BRAND.fern}44`, overflow: 'hidden',
       }}
     >
-      <Box sx={{ p: 1.5, bgcolor: 'rgba(96,165,250,0.1)', display: 'flex', alignItems: 'center', gap: 1 }}>
-        <SmartToy sx={{ color: 'primary.main', fontSize: 20 }} />
+      <Box sx={{ p: 1.5, bgcolor: `${BRAND.fern}18`, display: 'flex', alignItems: 'center', gap: 1 }}>
+        <SmartToy sx={{ color: BRAND.fern, fontSize: 20 }} />
         <Typography variant="subtitle2" sx={{ flex: 1 }}>Ask Helm</Typography>
-        <IconButton size="small" onClick={onClose}><Close sx={{ fontSize: 18 }} /></IconButton>
+        <IconButton size="small" onClick={onClose} sx={{ color: BRAND.stirling }}><Close sx={{ fontSize: 18 }} /></IconButton>
       </Box>
 
       <Box ref={scrollRef} sx={{ flex: 1, overflow: 'auto', p: 1.5, display: 'flex', flexDirection: 'column', gap: 1, maxHeight: 350 }}>
@@ -254,7 +255,7 @@ export default function AskAgent({ projects, open, onClose }: AskAgentProps) {
             key={i}
             sx={{
               alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-              bgcolor: msg.role === 'user' ? 'primary.main' : 'rgba(148,163,184,0.1)',
+              bgcolor: msg.role === 'user' ? BRAND.fern : `${BRAND.fern}12`,
               color: msg.role === 'user' ? 'white' : 'text.primary',
               px: 1.5, py: 1, borderRadius: 2, maxWidth: '90%',
             }}
@@ -268,10 +269,10 @@ export default function AskAgent({ projects, open, onClose }: AskAgentProps) {
             )}
           </Box>
         ))}
-        {loading && <CircularProgress size={20} sx={{ alignSelf: 'center' }} />}
+        {loading && <CircularProgress size={20} sx={{ alignSelf: 'center', color: BRAND.fern }} />}
       </Box>
 
-      <Box sx={{ p: 1, borderTop: '1px solid rgba(148,163,184,0.1)', display: 'flex', gap: 1 }}>
+      <Box sx={{ p: 1, borderTop: `1px solid ${BRAND.fern}18`, display: 'flex', gap: 1 }}>
         <TextField
           fullWidth
           size="small"
@@ -279,9 +280,14 @@ export default function AskAgent({ projects, open, onClose }: AskAgentProps) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
-          sx={{ '& .MuiOutlinedInput-root': { fontSize: '0.85rem' } }}
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              fontSize: '0.85rem',
+              '&.Mui-focused fieldset': { borderColor: BRAND.fern },
+            },
+          }}
         />
-        <IconButton color="primary" onClick={handleSend} disabled={loading || !input.trim()}>
+        <IconButton onClick={handleSend} disabled={loading || !input.trim()} sx={{ color: BRAND.fern }}>
           <Send sx={{ fontSize: 20 }} />
         </IconButton>
       </Box>

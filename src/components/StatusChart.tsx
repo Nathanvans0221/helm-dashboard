@@ -1,5 +1,5 @@
 import { Box, Typography, LinearProgress } from '@mui/material';
-import { STATUS_COLORS } from '../theme/theme';
+import { STATUS_COLORS, BRAND } from '../theme/theme';
 import type { TaskStatusCounts } from '../types/helm';
 
 interface StatusChartProps {
@@ -33,7 +33,7 @@ export default function StatusChart({ counts, total }: StatusChartProps) {
       {Object.entries(counts).map(([key, count]) => {
         if (count === 0) return null;
         const pct = Math.round((count / total) * 100);
-        const color = STATUS_COLORS[STATUS_MAP[key]] ?? '#94a3b8';
+        const color = STATUS_COLORS[STATUS_MAP[key]] ?? BRAND.stirling;
         return (
           <Box key={key}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
@@ -48,7 +48,6 @@ export default function StatusChart({ counts, total }: StatusChartProps) {
               sx={{
                 height: 8,
                 borderRadius: 4,
-                bgcolor: 'rgba(148,163,184,0.15)',
                 '& .MuiLinearProgress-bar': { bgcolor: color, borderRadius: 4 },
               }}
             />

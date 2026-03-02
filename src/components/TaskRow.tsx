@@ -1,6 +1,6 @@
 import { Box, Typography, Chip, IconButton, Tooltip } from '@mui/material';
 import { ContentCopy } from '@mui/icons-material';
-import { STATUS_COLORS, PRIORITY_COLORS } from '../theme/theme';
+import { STATUS_COLORS, PRIORITY_COLORS, BRAND } from '../theme/theme';
 import type { HelmTaskSummary } from '../types/helm';
 
 interface TaskRowProps {
@@ -24,8 +24,8 @@ export default function TaskRow({ task, onCopyPrompt, onClick }: TaskRowProps) {
       sx={{
         display: 'flex', alignItems: 'center', gap: 1.5, py: 1, px: 1.5,
         borderRadius: 1, cursor: 'pointer',
-        borderLeft: `3px solid ${STATUS_COLORS[task.status] ?? '#64748b'}`,
-        '&:hover': { bgcolor: 'rgba(148,163,184,0.08)' },
+        borderLeft: `3px solid ${STATUS_COLORS[task.status] ?? BRAND.stirling}`,
+        '&:hover': { bgcolor: `${BRAND.fern}0A` },
       }}
     >
       <Box onClick={onClick} sx={{ flex: 1, minWidth: 0 }}>
@@ -39,8 +39,8 @@ export default function TaskRow({ task, onCopyPrompt, onClick }: TaskRowProps) {
             label={STATUS_LABELS[task.status] ?? task.status}
             size="small"
             sx={{
-              bgcolor: (STATUS_COLORS[task.status] ?? '#64748b') + '22',
-              color: STATUS_COLORS[task.status] ?? '#64748b',
+              bgcolor: (STATUS_COLORS[task.status] ?? BRAND.stirling) + '22',
+              color: STATUS_COLORS[task.status] ?? BRAND.stirling,
               height: 20, fontSize: '0.7rem',
             }}
           />
@@ -49,8 +49,8 @@ export default function TaskRow({ task, onCopyPrompt, onClick }: TaskRowProps) {
               label={task.priority}
               size="small"
               sx={{
-                bgcolor: (PRIORITY_COLORS[task.priority] ?? '#64748b') + '22',
-                color: PRIORITY_COLORS[task.priority] ?? '#64748b',
+                bgcolor: (PRIORITY_COLORS[task.priority] ?? BRAND.stirling) + '22',
+                color: PRIORITY_COLORS[task.priority] ?? BRAND.stirling,
                 height: 20, fontSize: '0.7rem',
               }}
             />
@@ -62,7 +62,7 @@ export default function TaskRow({ task, onCopyPrompt, onClick }: TaskRowProps) {
             </Typography>
           )}
           {task.blockedBy.length > 0 && (
-            <Chip label={`Blocked (${task.blockedBy.length})`} size="small" sx={{ bgcolor: '#f8717122', color: '#f87171', height: 20, fontSize: '0.7rem' }} />
+            <Chip label={`Blocked (${task.blockedBy.length})`} size="small" sx={{ bgcolor: '#BA363622', color: '#BA3636', height: 20, fontSize: '0.7rem' }} />
           )}
         </Box>
       </Box>
@@ -71,7 +71,7 @@ export default function TaskRow({ task, onCopyPrompt, onClick }: TaskRowProps) {
         <IconButton
           size="small"
           onClick={(e) => { e.stopPropagation(); onCopyPrompt(); }}
-          sx={{ color: 'text.secondary', '&:hover': { color: 'primary.main' } }}
+          sx={{ color: 'text.secondary', '&:hover': { color: BRAND.fern } }}
         >
           <ContentCopy sx={{ fontSize: 16 }} />
         </IconButton>

@@ -1,27 +1,53 @@
 import { createTheme } from '@mui/material/styles';
 
+// Silver Fern Brand Colors
+const FERN = '#69936C';         // Primary brand green
+const FERN_DARK = '#4A7A4D';    // Darker fern for hover states
+const RICH_SOIL = '#3F4948';    // Dark charcoal
+const SPRING = '#A1DBA6';       // CTA / accent green
+const STIRLING = '#B3B3B3';     // Medium gray
+const LIGHT_SILVER = '#F2F2F2'; // Off-white backgrounds
+
+// Dark mode palette derived from Rich Soil
+const BG_DEFAULT = '#2C3635';   // Slightly lighter than Rich Soil
+const BG_PAPER = '#364140';     // Card/paper surfaces
+const BG_ELEVATED = '#3E4C4B';  // Elevated surfaces
+
 export const theme = createTheme({
   palette: {
     mode: 'dark',
-    primary: { main: '#60a5fa' },
-    secondary: { main: '#a78bfa' },
-    background: { default: '#0f172a', paper: '#1e293b' },
-    success: { main: '#34d399' },
-    warning: { main: '#fbbf24' },
-    error: { main: '#f87171' },
-    info: { main: '#38bdf8' },
+    primary: { main: FERN, dark: FERN_DARK, light: SPRING },
+    secondary: { main: SPRING },
+    background: { default: BG_DEFAULT, paper: BG_PAPER },
+    success: { main: '#63B76B' },   // RESTOCK green
+    warning: { main: '#E8B023' },   // REPORT gold
+    error: { main: '#BA3636' },     // FULFILL red
+    info: { main: '#6296BC' },      // ANALYZE blue
+    text: {
+      primary: LIGHT_SILVER,
+      secondary: STIRLING,
+    },
+    divider: 'rgba(169, 183, 169, 0.15)',
   },
   typography: {
-    fontFamily: '"Inter", "Roboto", "Helvetica", sans-serif',
-    h4: { fontWeight: 700 },
-    h5: { fontWeight: 600 },
+    fontFamily: '"Montserrat", "Inter", "Helvetica", sans-serif',
+    h4: { fontWeight: 700, letterSpacing: '0.02em' },
+    h5: { fontWeight: 600, letterSpacing: '0.01em' },
     h6: { fontWeight: 600 },
+    subtitle1: { fontWeight: 600 },
+    subtitle2: { fontWeight: 600 },
+    body2: { fontWeight: 400, lineHeight: 1.6 },
+    caption: { fontWeight: 400, letterSpacing: '0.01em' },
   },
-  shape: { borderRadius: 12 },
+  shape: { borderRadius: 8 },
   components: {
     MuiCard: {
       styleOverrides: {
-        root: { backgroundImage: 'none', border: '1px solid rgba(148, 163, 184, 0.1)' },
+        root: {
+          backgroundImage: 'none',
+          border: `1px solid rgba(169, 183, 169, 0.12)`,
+          backgroundColor: BG_PAPER,
+        },
       },
     },
     MuiChip: {
@@ -29,21 +55,81 @@ export const theme = createTheme({
         root: { fontWeight: 600, fontSize: '0.75rem' },
       },
     },
+    MuiButton: {
+      styleOverrides: {
+        contained: {
+          fontWeight: 600,
+          textTransform: 'none',
+          boxShadow: 'none',
+          '&:hover': { boxShadow: 'none' },
+        },
+        outlined: {
+          textTransform: 'none',
+          fontWeight: 600,
+        },
+        text: {
+          textTransform: 'none',
+          fontWeight: 600,
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundImage: 'none',
+        },
+      },
+    },
+    MuiFab: {
+      styleOverrides: {
+        root: {
+          boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+        },
+      },
+    },
+    MuiLinearProgress: {
+      styleOverrides: {
+        root: {
+          borderRadius: 4,
+          backgroundColor: 'rgba(169, 183, 169, 0.12)',
+        },
+      },
+    },
+    MuiDrawer: {
+      styleOverrides: {
+        paper: {
+          backgroundColor: BG_DEFAULT,
+        },
+      },
+    },
   },
 });
 
 export const STATUS_COLORS: Record<string, string> = {
-  INITIALIZED: '#94a3b8',
-  READY: '#60a5fa',
-  IN_PROGRESS: '#fbbf24',
-  PENDING: '#fb923c',
-  COMPLETED: '#34d399',
-  DENIED: '#f87171',
+  INITIALIZED: STIRLING,
+  READY: '#6296BC',       // ANALYZE blue
+  IN_PROGRESS: FERN,      // Brand green — active work
+  PENDING: '#E8B023',     // REPORT gold
+  COMPLETED: '#63B76B',   // RESTOCK green (brighter success)
+  DENIED: '#BA3636',      // FULFILL red
 };
 
 export const PRIORITY_COLORS: Record<string, string> = {
-  URGENT: '#ef4444',
-  HIGH: '#f97316',
-  NORMAL: '#60a5fa',
-  LOW: '#94a3b8',
+  URGENT: '#BA3636',
+  HIGH: '#DB6E14',        // PRODUCE orange
+  NORMAL: FERN,
+  LOW: STIRLING,
 };
+
+// Re-export brand constants for components
+export const BRAND = {
+  fern: FERN,
+  fernDark: FERN_DARK,
+  spring: SPRING,
+  richSoil: RICH_SOIL,
+  stirling: STIRLING,
+  lightSilver: LIGHT_SILVER,
+  bgDefault: BG_DEFAULT,
+  bgPaper: BG_PAPER,
+  bgElevated: BG_ELEVATED,
+} as const;

@@ -8,6 +8,7 @@ import {
 } from '@mui/icons-material';
 import { initClient, clearAuth, getStoredAuth, refreshAccessToken } from './services/helmApi';
 import { useProjects, useDashboardStats } from './hooks/useHelmData';
+import { BRAND } from './theme/theme';
 import AuthGate from './components/AuthGate';
 import StatsCards from './components/StatsCards';
 import StatusChart from './components/StatusChart';
@@ -25,13 +26,11 @@ export default function App() {
   const { projects, loading, error, load } = useProjects();
   const stats = useDashboardStats(projects);
 
-  // Auto-refresh token before expiry
   const scheduleRefresh = useCallback(() => {
     const auth = getStoredAuth();
     if (!auth?.refreshToken || !auth.expiresAt) return;
-    const msUntilExpiry = auth.expiresAt - Date.now() - 120_000; // refresh 2 min early
+    const msUntilExpiry = auth.expiresAt - Date.now() - 120_000;
     if (msUntilExpiry <= 0) {
-      // Refresh now
       refreshAccessToken(auth.refreshToken).then((session) => {
         if (session) initClient(session.accessToken);
         else { clearAuth(); setAuthed(false); }
@@ -42,7 +41,7 @@ export default function App() {
       refreshAccessToken(auth.refreshToken).then((session) => {
         if (session) {
           initClient(session.accessToken);
-          scheduleRefresh(); // schedule next refresh
+          scheduleRefresh();
         } else {
           clearAuth();
           setAuthed(false);
@@ -87,10 +86,24 @@ export default function App() {
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', color: 'text.primary' }}>
-      <Box sx={{ px: 3, py: 2, borderBottom: '1px solid rgba(148,163,184,0.1)', display: 'flex', alignItems: 'center', gap: 2 }}>
-        <Typography variant="h5" sx={{ fontWeight: 700, background: 'linear-gradient(135deg, #60a5fa, #a78bfa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-          AI Helm
-        </Typography>
+      {/* Header */}
+      <Box sx={{
+        px: 3, py: 1.5,
+        borderBottom: `1px solid ${BRAND.fern}22`,
+        display: 'flex', alignItems: 'center', gap: 2,
+        bgcolor: BRAND.bgPaper,
+      }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Box component="img" src="/icon.svg" sx={{ height: 32, width: 32 }} alt="Silver Fern" />
+          <Box>
+            <Typography variant="subtitle1" sx={{ lineHeight: 1.2, fontWeight: 700, color: BRAND.lightSilver }}>
+              AI Helm
+            </Typography>
+            <Typography variant="caption" sx={{ color: BRAND.stirling, fontSize: '0.65rem', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+              Silver Fern
+            </Typography>
+          </Box>
+        </Box>
         <Box sx={{ flex: 1 }} />
         <TextField
           size="small"
@@ -102,23 +115,30 @@ export default function App() {
               startAdornment: <InputAdornment position="start"><Search sx={{ fontSize: 18, color: 'text.secondary' }} /></InputAdornment>,
             },
           }}
-          sx={{ width: 300 }}
+          sx={{
+            width: 300,
+            '& .MuiOutlinedInput-root': {
+              '&.Mui-focused fieldset': { borderColor: BRAND.fern },
+            },
+          }}
         />
         <Tooltip title="Refresh">
-          <IconButton onClick={() => load()} disabled={loading}>
-            {loading ? <CircularProgress size={20} /> : <Refresh />}
+          <IconButton onClick={() => load()} disabled={loading} sx={{ color: BRAND.stirling }}>
+            {loading ? <CircularProgress size={20} sx={{ color: BRAND.fern }} /> : <Refresh />}
           </IconButton>
         </Tooltip>
         <Tooltip title="Logout">
-          <IconButton onClick={handleLogout}><Logout sx={{ fontSize: 20 }} /></IconButton>
+          <IconButton onClick={handleLogout} sx={{ color: BRAND.stirling }}>
+            <Logout sx={{ fontSize: 20 }} />
+          </IconButton>
         </Tooltip>
       </Box>
 
       <Box sx={{ maxWidth: 1200, mx: 'auto', p: 3 }}>
         {error && (
-          <Box sx={{ mb: 2, p: 2, bgcolor: 'rgba(248,113,113,0.1)', borderRadius: 2, border: '1px solid rgba(248,113,113,0.3)' }}>
+          <Box sx={{ mb: 2, p: 2, bgcolor: 'rgba(186,54,54,0.1)', borderRadius: 2, border: '1px solid rgba(186,54,54,0.3)' }}>
             <Typography color="error" variant="body2">{error}</Typography>
-            <Button size="small" onClick={() => load()} sx={{ mt: 1 }}>Retry</Button>
+            <Button size="small" onClick={() => load()} sx={{ mt: 1, color: BRAND.spring }}>Retry</Button>
           </Box>
         )}
 
@@ -127,11 +147,11 @@ export default function App() {
         </Box>
 
         <Box sx={{ display: 'flex', gap: 3, mb: 3 }}>
-          <Box sx={{ flex: 1, bgcolor: 'background.paper', borderRadius: 2, p: 2, border: '1px solid rgba(148,163,184,0.1)' }}>
+          <Box sx={{ flex: 1, bgcolor: 'background.paper', borderRadius: 2, p: 2, border: '1px solid rgba(169,183,169,0.12)' }}>
             <Typography variant="subtitle2" sx={{ mb: 1.5 }}>Task Status Breakdown</Typography>
             <StatusChart counts={stats.statusBreakdown} total={stats.totalTasks} />
           </Box>
-          <Box sx={{ width: 280, bgcolor: 'background.paper', borderRadius: 2, p: 2, border: '1px solid rgba(148,163,184,0.1)' }}>
+          <Box sx={{ width: 280, bgcolor: 'background.paper', borderRadius: 2, p: 2, border: '1px solid rgba(169,183,169,0.12)' }}>
             <Typography variant="subtitle2" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 0.5 }}>
               <FilterList sx={{ fontSize: 16 }} /> Filter by Status
             </Typography>
@@ -145,12 +165,12 @@ export default function App() {
                   variant={statusFilter === s ? 'filled' : 'outlined'}
                   sx={{
                     justifyContent: 'flex-start',
-                    ...(statusFilter === s && { bgcolor: 'primary.main', color: 'white' }),
+                    ...(statusFilter === s && { bgcolor: BRAND.fern, color: 'white' }),
                   }}
                 />
               ))}
               {statusFilter && (
-                <Button size="small" onClick={() => setStatusFilter(null)} sx={{ mt: 0.5 }}>
+                <Button size="small" onClick={() => setStatusFilter(null)} sx={{ mt: 0.5, color: BRAND.spring }}>
                   Clear filter
                 </Button>
               )}
@@ -160,12 +180,12 @@ export default function App() {
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
           <Typography variant="h6">Projects</Typography>
-          <Chip label={filtered.length} size="small" />
+          <Chip label={filtered.length} size="small" sx={{ bgcolor: `${BRAND.fern}33`, color: BRAND.fern }} />
         </Box>
 
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
           {loading && projects.length === 0 ? (
-            <Box sx={{ textAlign: 'center', py: 6 }}><CircularProgress /></Box>
+            <Box sx={{ textAlign: 'center', py: 6 }}><CircularProgress sx={{ color: BRAND.fern }} /></Box>
           ) : filtered.length === 0 ? (
             <Typography color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
               {search || statusFilter ? 'No projects match your filters' : 'No projects found'}
@@ -182,9 +202,16 @@ export default function App() {
 
       <Tooltip title="Ask Helm Agent">
         <Fab
-          color="primary"
           onClick={() => setAskOpen(!askOpen)}
-          sx={{ position: 'fixed', bottom: askOpen ? 'calc(60vh + 24px)' : 16, right: 16, transition: 'bottom 0.3s' }}
+          sx={{
+            position: 'fixed',
+            bottom: askOpen ? 'calc(60vh + 24px)' : 16,
+            right: 16,
+            transition: 'bottom 0.3s',
+            bgcolor: BRAND.fern,
+            color: 'white',
+            '&:hover': { bgcolor: BRAND.fernDark },
+          }}
         >
           <SmartToy />
         </Fab>
