@@ -1,31 +1,105 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
-  Box, TextField, Button, Typography, Paper, InputAdornment, IconButton,
+  Box, Button, Typography, Paper, CircularProgress, Link,
 } from '@mui/material';
-import { Visibility, VisibilityOff, RocketLaunch } from '@mui/icons-material';
-import { initClient } from '../services/helmApi';
+import { RocketLaunch, OpenInNew } from '@mui/icons-material';
+import {
+  startDeviceAuth, pollDeviceToken, initClient, storeAuth,
+  getStoredAuth, refreshAccessToken,
+} from '../services/helmApi';
 
 interface AuthGateProps {
   onAuth: () => void;
 }
 
-export default function AuthGate({ onAuth }: AuthGateProps) {
-  const [token, setToken] = useState(() => localStorage.getItem('helm_token') ?? '');
-  const [showToken, setShowToken] = useState(false);
-  const [error, setError] = useState('');
+type AuthStep = 'idle' | 'loading' | 'waiting' | 'error';
 
-  const handleSubmit = async () => {
-    const trimmed = token.trim();
-    if (!trimmed) { setError('Token is required'); return; }
+export default function AuthGate({ onAuth }: AuthGateProps) {
+  const [step, setStep] = useState<AuthStep>('idle');
+  const [userCode, setUserCode] = useState('');
+  const [verifyUrl, setVerifyUrl] = useState('');
+  const [error, setError] = useState('');
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const deviceCodeRef = useRef('');
+
+  // On mount, try to restore session
+  useEffect(() => {
+    const tryRestore = async () => {
+      const auth = getStoredAuth();
+      if (!auth) return;
+
+      // Token still valid
+      if (auth.expiresAt > Date.now() + 60_000) {
+        initClient(auth.accessToken);
+        onAuth();
+        return;
+      }
+
+      // Try refresh
+      if (auth.refreshToken) {
+        setStep('loading');
+        const refreshed = await refreshAccessToken(auth.refreshToken);
+        if (refreshed) {
+          initClient(refreshed.accessToken);
+          onAuth();
+          return;
+        }
+      }
+      setStep('idle');
+    };
+    tryRestore();
+  }, [onAuth]);
+
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pollingRef.current) clearInterval(pollingRef.current);
+    };
+  }, []);
+
+  const handleLogin = async () => {
+    setStep('loading');
+    setError('');
     try {
-      initClient(trimmed);
-      // Quick validation — try listing projects
-      const { searchProjects } = await import('../services/helmApi');
-      await searchProjects();
-      localStorage.setItem('helm_token', trimmed);
-      onAuth();
+      const data = await startDeviceAuth();
+      setUserCode(data.user_code);
+      setVerifyUrl(data.verification_uri_complete || data.verification_uri);
+      deviceCodeRef.current = data.device_code;
+      setStep('waiting');
+
+      // Open the verification URL
+      window.open(data.verification_uri_complete || data.verification_uri, '_blank');
+
+      // Start polling
+      const interval = (data.interval || 5) * 1000;
+      pollingRef.current = setInterval(async () => {
+        try {
+          const result = await pollDeviceToken(deviceCodeRef.current);
+          if (result.access_token) {
+            // Success
+            if (pollingRef.current) clearInterval(pollingRef.current);
+            const session = {
+              accessToken: result.access_token,
+              refreshToken: result.refresh_token ?? '',
+              expiresAt: Date.now() + (result.expires_in ?? 3600) * 1000,
+            };
+            storeAuth(session);
+            initClient(session.accessToken);
+            onAuth();
+          } else if (result.error && result.error !== 'authorization_pending') {
+            // Fatal error (not just "still waiting")
+            if (pollingRef.current) clearInterval(pollingRef.current);
+            setError(result.error === 'slow_down' ? 'Too many requests, try again' : `Auth failed: ${result.error}`);
+            setStep('error');
+          }
+          // authorization_pending = keep polling
+        } catch {
+          // Network error during poll, keep trying
+        }
+      }, interval);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Invalid token or API unreachable');
+      setError(e instanceof Error ? e.message : 'Failed to start login');
+      setStep('error');
     }
   };
 
@@ -33,35 +107,81 @@ export default function AuthGate({ onAuth }: AuthGateProps) {
     <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'background.default' }}>
       <Paper sx={{ p: 4, maxWidth: 480, width: '100%', textAlign: 'center' }}>
         <RocketLaunch sx={{ fontSize: 48, color: 'primary.main', mb: 2 }} />
-        <Typography variant="h5" sx={{ mb: 1 }}>AI Helm Dashboard</Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-          Paste your FusionAuth bearer token to connect
+        <Typography variant="h5" sx={{ mb: 0.5, fontWeight: 700, background: 'linear-gradient(135deg, #60a5fa, #a78bfa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+          AI Helm Dashboard
         </Typography>
-        <TextField
-          fullWidth
-          label="Bearer Token"
-          value={token}
-          onChange={(e) => { setToken(e.target.value); setError(''); }}
-          type={showToken ? 'text' : 'password'}
-          error={!!error}
-          helperText={error || 'Get your token from: claude → helm_authenticate'}
-          onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-          slotProps={{
-            input: {
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton onClick={() => setShowToken(!showToken)} edge="end">
-                    {showToken ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            },
-          }}
-          sx={{ mb: 2 }}
-        />
-        <Button variant="contained" fullWidth size="large" onClick={handleSubmit}>
-          Connect
-        </Button>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+          Sign in with your Silver Fern account
+        </Typography>
+
+        {step === 'idle' && (
+          <Button variant="contained" fullWidth size="large" onClick={handleLogin} sx={{ py: 1.5 }}>
+            Login with Silver Fern
+          </Button>
+        )}
+
+        {step === 'loading' && (
+          <Box sx={{ py: 2 }}>
+            <CircularProgress size={32} />
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              Connecting...
+            </Typography>
+          </Box>
+        )}
+
+        {step === 'waiting' && (
+          <Box>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              A login page has been opened. If it didn't open, click below:
+            </Typography>
+            <Link
+              href={verifyUrl}
+              target="_blank"
+              rel="noopener"
+              sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, mb: 2, fontSize: '0.95rem' }}
+            >
+              Open Login Page <OpenInNew sx={{ fontSize: 16 }} />
+            </Link>
+
+            <Box sx={{
+              my: 2, py: 2, px: 3, bgcolor: 'rgba(96,165,250,0.08)',
+              borderRadius: 2, border: '1px solid rgba(96,165,250,0.2)',
+            }}>
+              <Typography variant="caption" color="text.secondary">Your code</Typography>
+              <Typography variant="h4" sx={{ fontFamily: 'monospace', fontWeight: 700, letterSpacing: 4, color: 'primary.main' }}>
+                {userCode}
+              </Typography>
+            </Box>
+
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mt: 2 }}>
+              <CircularProgress size={16} />
+              <Typography variant="body2" color="text.secondary">
+                Waiting for you to sign in...
+              </Typography>
+            </Box>
+
+            <Button
+              variant="text"
+              size="small"
+              onClick={() => {
+                if (pollingRef.current) clearInterval(pollingRef.current);
+                setStep('idle');
+              }}
+              sx={{ mt: 2 }}
+            >
+              Cancel
+            </Button>
+          </Box>
+        )}
+
+        {step === 'error' && (
+          <Box>
+            <Typography color="error" variant="body2" sx={{ mb: 2 }}>{error}</Typography>
+            <Button variant="contained" fullWidth onClick={handleLogin}>
+              Try Again
+            </Button>
+          </Box>
+        )}
       </Paper>
     </Box>
   );

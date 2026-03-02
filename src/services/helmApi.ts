@@ -1,12 +1,10 @@
 import { GraphQLClient } from 'graphql-request';
 import type { HelmProject, HelmTask, HelmTaskSummary, TaskStatusCounts } from '../types/helm';
 
-const API_URL = 'https://aihelm.silverfern.app/graphql';
-
 let client: GraphQLClient | null = null;
 
 export function initClient(token: string) {
-  client = new GraphQLClient(API_URL, {
+  client = new GraphQLClient('/api/graphql', {
     headers: { Authorization: `Bearer ${token}` },
   });
 }
@@ -15,6 +13,85 @@ export function getClient(): GraphQLClient {
   if (!client) throw new Error('Not authenticated');
   return client;
 }
+
+// --- Auth helpers ---
+
+interface AuthSession {
+  accessToken: string;
+  refreshToken: string;
+  expiresAt: number;
+}
+
+export function getStoredAuth(): AuthSession | null {
+  try {
+    const raw = localStorage.getItem('helm_auth');
+    if (!raw) return null;
+    return JSON.parse(raw) as AuthSession;
+  } catch {
+    return null;
+  }
+}
+
+export function storeAuth(session: AuthSession) {
+  localStorage.setItem('helm_auth', JSON.stringify(session));
+}
+
+export function clearAuth() {
+  localStorage.removeItem('helm_auth');
+  localStorage.removeItem('helm_token'); // clean up old format
+  client = null;
+}
+
+export async function startDeviceAuth(): Promise<{
+  device_code: string;
+  user_code: string;
+  verification_uri: string;
+  verification_uri_complete: string;
+  expires_in: number;
+  interval: number;
+}> {
+  const res = await fetch('/api/device-auth', { method: 'POST' });
+  if (!res.ok) throw new Error('Failed to start device auth');
+  return res.json();
+}
+
+export async function pollDeviceToken(deviceCode: string): Promise<{
+  access_token?: string;
+  refresh_token?: string;
+  expires_in?: number;
+  error?: string;
+}> {
+  const res = await fetch('/api/device-token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ device_code: deviceCode }),
+  });
+  return res.json();
+}
+
+export async function refreshAccessToken(refreshToken: string): Promise<AuthSession | null> {
+  try {
+    const res = await fetch('/api/refresh', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: refreshToken }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data.access_token) return null;
+    const session: AuthSession = {
+      accessToken: data.access_token,
+      refreshToken: data.refresh_token ?? refreshToken,
+      expiresAt: Date.now() + (data.expires_in ?? 3600) * 1000,
+    };
+    storeAuth(session);
+    return session;
+  } catch {
+    return null;
+  }
+}
+
+// --- GraphQL queries ---
 
 export async function searchProjects(searchText?: string): Promise<HelmProject[]> {
   const c = getClient();

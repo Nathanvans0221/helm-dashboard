@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Box, Typography, TextField, InputAdornment, IconButton, Fab, Tooltip,
   CircularProgress, Button, Chip,
@@ -6,7 +6,7 @@ import {
 import {
   Search, Refresh, SmartToy, Logout, FilterList,
 } from '@mui/icons-material';
-import { initClient } from './services/helmApi';
+import { initClient, clearAuth, getStoredAuth, refreshAccessToken } from './services/helmApi';
 import { useProjects, useDashboardStats } from './hooks/useHelmData';
 import AuthGate from './components/AuthGate';
 import StatsCards from './components/StatsCards';
@@ -25,20 +25,46 @@ export default function App() {
   const { projects, loading, error, load } = useProjects();
   const stats = useDashboardStats(projects);
 
-  useEffect(() => {
-    const token = localStorage.getItem('helm_token');
-    if (token) {
-      initClient(token);
-      setAuthed(true);
+  // Auto-refresh token before expiry
+  const scheduleRefresh = useCallback(() => {
+    const auth = getStoredAuth();
+    if (!auth?.refreshToken || !auth.expiresAt) return;
+    const msUntilExpiry = auth.expiresAt - Date.now() - 120_000; // refresh 2 min early
+    if (msUntilExpiry <= 0) {
+      // Refresh now
+      refreshAccessToken(auth.refreshToken).then((session) => {
+        if (session) initClient(session.accessToken);
+        else { clearAuth(); setAuthed(false); }
+      });
+      return;
     }
+    const timer = setTimeout(() => {
+      refreshAccessToken(auth.refreshToken).then((session) => {
+        if (session) {
+          initClient(session.accessToken);
+          scheduleRefresh(); // schedule next refresh
+        } else {
+          clearAuth();
+          setAuthed(false);
+        }
+      });
+    }, msUntilExpiry);
+    return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (authed) {
+      const cleanup = scheduleRefresh();
+      return cleanup;
+    }
+  }, [authed, scheduleRefresh]);
 
   useEffect(() => {
     if (authed) load();
   }, [authed, load]);
 
   const handleLogout = () => {
-    localStorage.removeItem('helm_token');
+    clearAuth();
     setAuthed(false);
   };
 
