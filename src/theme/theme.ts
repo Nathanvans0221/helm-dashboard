@@ -27,7 +27,7 @@ export const theme = createTheme({
       primary: LIGHT_SILVER,
       secondary: STIRLING,
     },
-    divider: 'rgba(169, 183, 169, 0.15)',
+    divider: 'rgba(200, 200, 200, 0.12)',
   },
   typography: {
     fontFamily: '"Montserrat", "Inter", "Helvetica", sans-serif',
@@ -45,7 +45,7 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           backgroundImage: 'none',
-          border: `1px solid rgba(169, 183, 169, 0.12)`,
+          border: `1px solid rgba(200, 200, 200, 0.1)`,
           backgroundColor: BG_PAPER,
         },
       },
@@ -91,7 +91,7 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 4,
-          backgroundColor: 'rgba(169, 183, 169, 0.12)',
+          backgroundColor: 'rgba(200, 200, 200, 0.1)',
         },
       },
     },

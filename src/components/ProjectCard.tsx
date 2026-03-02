@@ -49,7 +49,7 @@ export default function ProjectCard({ project: p, onTaskClick }: ProjectCardProp
         onClick={() => setExpanded(!expanded)}
         sx={{
           p: 2, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 2,
-          '&:hover': { bgcolor: `${BRAND.fern}08` },
+          '&:hover': { bgcolor: 'rgba(200,200,200,0.04)' },
         }}
       >
         <Box sx={{ flex: 1 }}>
@@ -109,7 +109,7 @@ export default function ProjectCard({ project: p, onTaskClick }: ProjectCardProp
                 href={p.clickUpTaskUrl}
                 target="_blank"
                 clickable
-                sx={{ mr: 1, borderColor: `${BRAND.fern}44`, color: BRAND.spring }}
+                sx={{ mr: 1 }}
               />
             </Box>
           )}

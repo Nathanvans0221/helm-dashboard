@@ -89,7 +89,7 @@ export default function App() {
       {/* Header */}
       <Box sx={{
         px: 3, py: 1.5,
-        borderBottom: `1px solid ${BRAND.fern}22`,
+        borderBottom: '1px solid rgba(200,200,200,0.1)',
         display: 'flex', alignItems: 'center', gap: 2,
         bgcolor: BRAND.bgPaper,
       }}>
@@ -147,11 +147,11 @@ export default function App() {
         </Box>
 
         <Box sx={{ display: 'flex', gap: 3, mb: 3 }}>
-          <Box sx={{ flex: 1, bgcolor: 'background.paper', borderRadius: 2, p: 2, border: '1px solid rgba(169,183,169,0.12)' }}>
+          <Box sx={{ flex: 1, bgcolor: 'background.paper', borderRadius: 2, p: 2, border: '1px solid rgba(200,200,200,0.1)' }}>
             <Typography variant="subtitle2" sx={{ mb: 1.5 }}>Task Status Breakdown</Typography>
             <StatusChart counts={stats.statusBreakdown} total={stats.totalTasks} />
           </Box>
-          <Box sx={{ width: 280, bgcolor: 'background.paper', borderRadius: 2, p: 2, border: '1px solid rgba(169,183,169,0.12)' }}>
+          <Box sx={{ width: 280, bgcolor: 'background.paper', borderRadius: 2, p: 2, border: '1px solid rgba(200,200,200,0.1)' }}>
             <Typography variant="subtitle2" sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 0.5 }}>
               <FilterList sx={{ fontSize: 16 }} /> Filter by Status
             </Typography>
@@ -180,7 +180,7 @@ export default function App() {
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
           <Typography variant="h6">Projects</Typography>
-          <Chip label={filtered.length} size="small" sx={{ bgcolor: `${BRAND.fern}33`, color: BRAND.fern }} />
+          <Chip label={filtered.length} size="small" sx={{ bgcolor: 'rgba(200,200,200,0.1)', color: BRAND.fern }} />
         </Box>
 
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>

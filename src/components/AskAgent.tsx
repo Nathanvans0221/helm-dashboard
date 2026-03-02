@@ -39,7 +39,7 @@ function MarkdownText({ text }: { text: string }) {
                 key={j}
                 component="code"
                 sx={{
-                  bgcolor: `${BRAND.fern}18`,
+                  bgcolor: 'rgba(200,200,200,0.1)',
                   px: 0.5,
                   borderRadius: 0.5,
                   fontSize: '0.78rem',
@@ -235,10 +235,10 @@ export default function AskAgent({ projects, open, onClose }: AskAgentProps) {
       sx={{
         position: 'fixed', bottom: 16, right: 16, width: 420, maxHeight: '60vh',
         display: 'flex', flexDirection: 'column', zIndex: 1300,
-        border: `1px solid ${BRAND.fern}44`, overflow: 'hidden',
+        border: '1px solid rgba(200,200,200,0.12)', overflow: 'hidden',
       }}
     >
-      <Box sx={{ p: 1.5, bgcolor: `${BRAND.fern}18`, display: 'flex', alignItems: 'center', gap: 1 }}>
+      <Box sx={{ p: 1.5, bgcolor: 'rgba(200,200,200,0.06)', display: 'flex', alignItems: 'center', gap: 1 }}>
         <SmartToy sx={{ color: BRAND.fern, fontSize: 20 }} />
         <Typography variant="subtitle2" sx={{ flex: 1 }}>Ask Helm</Typography>
         <IconButton size="small" onClick={onClose} sx={{ color: BRAND.stirling }}><Close sx={{ fontSize: 18 }} /></IconButton>
@@ -255,7 +255,7 @@ export default function AskAgent({ projects, open, onClose }: AskAgentProps) {
             key={i}
             sx={{
               alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-              bgcolor: msg.role === 'user' ? BRAND.fern : `${BRAND.fern}12`,
+              bgcolor: msg.role === 'user' ? BRAND.fern : 'rgba(200,200,200,0.06)',
               color: msg.role === 'user' ? 'white' : 'text.primary',
               px: 1.5, py: 1, borderRadius: 2, maxWidth: '90%',
             }}
@@ -272,7 +272,7 @@ export default function AskAgent({ projects, open, onClose }: AskAgentProps) {
         {loading && <CircularProgress size={20} sx={{ alignSelf: 'center', color: BRAND.fern }} />}
       </Box>
 
-      <Box sx={{ p: 1, borderTop: `1px solid ${BRAND.fern}18`, display: 'flex', gap: 1 }}>
+      <Box sx={{ p: 1, borderTop: '1px solid rgba(200,200,200,0.08)', display: 'flex', gap: 1 }}>
         <TextField
           fullWidth
           size="small"

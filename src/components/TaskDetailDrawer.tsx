@@ -54,8 +54,8 @@ export default function TaskDetailDrawer({ taskId, onClose }: TaskDetailDrawerPr
                 sx={{ bgcolor: (PRIORITY_COLORS[task.priority] ?? BRAND.stirling) + '22', color: PRIORITY_COLORS[task.priority] }}
               />
             )}
-            <Chip label={task.repo} variant="outlined" size="small" sx={{ borderColor: `${BRAND.fern}44` }} />
-            {task.assignee && <Chip label={`@${task.assignee.split('@')[0]}`} variant="outlined" size="small" sx={{ borderColor: `${BRAND.fern}44` }} />}
+            <Chip label={task.repo} variant="outlined" size="small" />
+            {task.assignee && <Chip label={`@${task.assignee.split('@')[0]}`} variant="outlined" size="small" />}
           </Box>
 
           <Button
@@ -75,7 +75,7 @@ export default function TaskDetailDrawer({ taskId, onClose }: TaskDetailDrawerPr
               href={task.pullRequestUrl}
               target="_blank"
               fullWidth
-              sx={{ mb: 2, borderColor: `${BRAND.fern}66`, color: BRAND.spring, '&:hover': { borderColor: BRAND.fern } }}
+              sx={{ mb: 2 }}
             >
               Open Pull Request
             </Button>
@@ -92,8 +92,8 @@ export default function TaskDetailDrawer({ taskId, onClose }: TaskDetailDrawerPr
               <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 0.5 }}>Details</Typography>
               <Box
                 sx={{
-                  p: 1.5, bgcolor: `${BRAND.fern}0A`, borderRadius: 1,
-                  border: `1px solid ${BRAND.fern}15`,
+                  p: 1.5, bgcolor: 'rgba(200,200,200,0.05)', borderRadius: 1,
+                  border: '1px solid rgba(200,200,200,0.08)',
                   maxHeight: 300, overflow: 'auto', fontFamily: 'monospace', fontSize: '0.8rem',
                   whiteSpace: 'pre-wrap', wordBreak: 'break-word', color: 'text.secondary',
                 }}
