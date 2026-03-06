@@ -31,7 +31,7 @@ export default function StatusChart({ counts, total }: StatusChartProps) {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
       {Object.entries(counts).map(([key, count]) => {
-        if (count === 0) return null;
+        if (count === 0 || key === 'denied') return null;
         const pct = Math.round((count / total) * 100);
         const color = STATUS_COLORS[STATUS_MAP[key]] ?? BRAND.stirling;
         return (

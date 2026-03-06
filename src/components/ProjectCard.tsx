@@ -15,9 +15,10 @@ interface ProjectCardProps {
 }
 
 function completionPct(p: ProjectWithTasks): number {
-  const total = p.tasks.length;
+  const nonDenied = p.tasks.filter((t) => t.status !== 'DENIED');
+  const total = nonDenied.length;
   if (!total) return 0;
-  const done = p.statusCounts?.completed ?? p.tasks.filter((t) => t.status === 'COMPLETED').length;
+  const done = p.statusCounts?.completed ?? nonDenied.filter((t) => t.status === 'COMPLETED').length;
   return Math.round((done / total) * 100);
 }
 
@@ -67,7 +68,7 @@ export default function ProjectCard({ project: p, onTaskClick }: ProjectCardProp
               <Typography variant="caption">{p.techLeadEmail?.split('@')[0]}</Typography>
             </Box>
             <Typography variant="caption">
-              {p.tasks.length} task{p.tasks.length !== 1 ? 's' : ''}
+              {p.tasks.filter((t) => t.status !== 'DENIED').length} task{p.tasks.filter((t) => t.status !== 'DENIED').length !== 1 ? 's' : ''}
             </Typography>
             <Typography variant="caption">
               Updated {new Date(p.lastUpdate).toLocaleDateString()}
@@ -114,15 +115,16 @@ export default function ProjectCard({ project: p, onTaskClick }: ProjectCardProp
             </Box>
           )}
 
-          {p.tasks.length === 0 ? (
+          {p.tasks.filter((t) => t.status !== 'DENIED').length === 0 ? (
             <Typography variant="body2" color="text.secondary" sx={{ py: 2, textAlign: 'center' }}>
               No tasks yet
             </Typography>
           ) : (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
               {p.tasks
+                .filter((t) => t.status !== 'DENIED')
                 .sort((a, b) => {
-                  const order = ['IN_PROGRESS', 'READY', 'PENDING', 'INITIALIZED', 'COMPLETED', 'DENIED'];
+                  const order = ['IN_PROGRESS', 'READY', 'PENDING', 'INITIALIZED', 'COMPLETED'];
                   return order.indexOf(a.status) - order.indexOf(b.status);
                 })
                 .map((task) => (

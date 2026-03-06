@@ -78,7 +78,8 @@ export function useAllTasks() {
 
 export function useDashboardStats(projects: ProjectWithTasks[]) {
   const totalProjects = projects.length;
-  const totalTasks = projects.reduce((sum, p) => sum + p.tasks.length, 0);
+  // Exclude DENIED tasks from all counts — they're rejected/cancelled and shouldn't affect metrics
+  const totalTasks = projects.reduce((sum, p) => sum + p.tasks.filter((t) => t.status !== 'DENIED').length, 0);
   const activeTasks = projects.reduce(
     (sum, p) => sum + p.tasks.filter((t) => t.status === 'IN_PROGRESS').length,
     0
@@ -96,7 +97,7 @@ export function useDashboardStats(projects: ProjectWithTasks[]) {
     0
   );
   const blockedTasks = projects.reduce(
-    (sum, p) => sum + p.tasks.filter((t) => t.blockedBy.length > 0).length,
+    (sum, p) => sum + p.tasks.filter((t) => t.status !== 'DENIED' && t.blockedBy.length > 0).length,
     0
   );
 
