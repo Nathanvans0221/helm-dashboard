@@ -94,10 +94,10 @@ export default function App() {
   const filtered = projects.filter((p) => {
     if (search) {
       const q = search.toLowerCase();
-      const match = p.projectName.toLowerCase().includes(q) ||
-        p.techLeadEmail.toLowerCase().includes(q) ||
-        p.productLeadEmail.toLowerCase().includes(q) ||
-        p.tasks.some((t) => t.title.toLowerCase().includes(q) || t.repo.toLowerCase().includes(q));
+      const match = p.projectName?.toLowerCase().includes(q) ||
+        p.techLeadEmail?.toLowerCase().includes(q) ||
+        p.productLeadEmail?.toLowerCase().includes(q) ||
+        p.tasks.some((t) => t.title?.toLowerCase().includes(q) || t.repo?.toLowerCase().includes(q));
       if (!match) return false;
     }
     if (statusFilter) {
